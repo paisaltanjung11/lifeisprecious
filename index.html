@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Life is Precious - Daily Gratitude Journal</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="icon" type="image/png" href="./img/lifeisprecious.png" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <header class="header">
+        <div class="header__logo">
+          <h1 class="header__title">Life is Precious</h1>
+          <p class="header__subtitle">Daily Gratitude Journal</p>
+        </div>
+        <div class="header__actions">
+          <button
+            id="theme-toggle"
+            class="theme-toggle"
+            aria-label="Toggle dark mode"
+          >
+            <i class="fas fa-sun"></i>
+          </button>
+          <button id="logout-btn" class="logout-btn hidden">
+            <i class="fas fa-sign-out-alt"></i> Logout
+          </button>
+        </div>
+      </header>
+
+      <!-- Login / Register Section -->
+      <section id="auth-section" class="auth">
+        <div class="auth__card">
+          <div class="auth__icon">
+            <i class="fas fa-book-open"></i>
+          </div>
+          <h2 class="auth__title">Hey, welcome back!</h2>
+          <p class="auth__instruction">
+            Grab a cup of tea, let's write one small thing from your day 🌱
+          </p>
+          <div class="form-group">
+            <input
+              type="text"
+              id="username-input"
+              class="form-input"
+              placeholder="What's your name today?"
+              required
+            />
+            <button id="login-btn" class="button button--primary">
+              Start Writing
+            </button>
+            <p class="auth__extra-text">Your story is safe here ✨</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Main App Section (Hidden until login) -->
+      <main id="app-section" class="app hidden">
+        <nav class="tab-navigation">
+          <button id="journal-tab" class="tab-btn active">
+            Today's Journal
+          </button>
+          <button id="history-tab" class="tab-btn">History</button>
+        </nav>
+
+        <!-- Journal Entry Section -->
+        <section id="journal-section" class="journal">
+          <div class="card">
+            <h2 id="current-date" class="journal__date">
+              Day, Month Date Year
+            </h2>
+            <div class="journal__greeting">
+              Hello, <span id="user-greeting">User</span>!
+            </div>
+
+            <form id="journal-form" class="journal__form">
+              <div class="form-group">
+                <label for="journal-entry" class="form-label"
+                  >What did today feel like? Even small things matter.</label
+                >
+                <textarea
+                  id="journal-entry"
+                  class="form-textarea"
+                  maxlength="200"
+                  placeholder="No pressure, just you and your thoughts..."
+                ></textarea>
+                <div class="char-count">
+                  <span id="char-counter">0</span>/200
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">How are you feeling today?</label>
+                <div class="mood-selector">
+                  <div class="mood-option" data-mood="happy">
+                    <span class="mood-emoji">😊</span>
+                    <span class="mood-label">Happy</span>
+                  </div>
+                  <div class="mood-option" data-mood="neutral">
+                    <span class="mood-emoji">😐</span>
+                    <span class="mood-label">Neutral</span>
+                  </div>
+                  <div class="mood-option" data-mood="sad">
+                    <span class="mood-emoji">😔</span>
+                    <span class="mood-label">Sad</span>
+                  </div>
+                  <div class="mood-option" data-mood="angry">
+                    <span class="mood-emoji">😠</span>
+                    <span class="mood-label">Angry</span>
+                  </div>
+                  <div class="mood-option" data-mood="tired">
+                    <span class="mood-emoji">😴</span>
+                    <span class="mood-label">Tired</span>
+                  </div>
+                </div>
+              </div>
+
+              <div id="motivation-box" class="motivation hidden">
+                <p id="motivation-text" class="motivation__text"></p>
+              </div>
+
+              <button
+                type="button"
+                id="save-entry-btn"
+                class="button button--primary"
+              >
+                Save Journal
+              </button>
+            </form>
+          </div>
+
+          <div class="info-card">
+            <div class="info-card__icon">
+              <i class="fas fa-lightbulb"></i>
+            </div>
+            <div class="info-card__content">
+              <h3>Did You Know?</h3>
+              <p>
+                Writing in a gratitude journal for just 5 minutes a day can
+                significantly boost your happiness and well-being!
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- History Section -->
+        <section id="history-section" class="history hidden">
+          <div class="card">
+            <div class="history__header">
+              <h2 class="history__title">Journal History</h2>
+              <div class="history__actions">
+                <button
+                  id="export-journal-btn"
+                  class="export-journal-btn"
+                  title="You own your story."
+                >
+                  <i class="fas fa-file-export"></i> Export Journal
+                </button>
+                <button id="view-calendar-btn" class="view-calendar-btn">
+                  <i class="fas fa-calendar-alt"></i> View Mood Calendar
+                </button>
+              </div>
+            </div>
+
+            <!-- Dominant Mood Tracker -->
+            <div id="mood-tracker" class="mood-tracker">
+              <div class="mood-tracker__title">
+                <i class="fas fa-brain"></i> Your Dominant Mood
+              </div>
+              <div class="mood-tracker__insight">
+                <span class="mood-tracker__insight-emoji">😐</span>
+                <span
+                  >You've felt mostly <strong>Neutral</strong> this month.</span
+                >
+              </div>
+              <div class="mood-tracker__insight hidden">
+                <span class="mood-tracker__insight-emoji">😊</span>
+                <span>Happiest Day: <strong>June 4</strong></span>
+              </div>
+              <div class="mood-tracker__insight hidden">
+                <span class="mood-tracker__insight-emoji">😔</span>
+                <span
+                  >You've been <strong>Sad</strong> for 3 days in a row. Want to
+                  talk?</span
+                >
+              </div>
+              <button class="mood-tracker__stats-btn">
+                See Full Mood Stats <i class="fas fa-arrow-right"></i>
+              </button>
+            </div>
+
+            <div id="history-list" class="history__list">
+              <!-- Journal entries will be populated here -->
+              <p id="no-entries-message" class="history__empty">
+                No entries yet. Today is a good start! ✨
+              </p>
+            </div>
+          </div>
+
+          <!-- Mood Calendar Card -->
+          <div id="mood-calendar-card" class="card calendar-card hidden">
+            <div class="calendar-card__header">
+              <h2 class="calendar-card__title">Mood Trend Calendar</h2>
+              <div class="calendar-navigation">
+                <button id="prev-month-btn" class="calendar-nav-btn">
+                  <i class="fas fa-chevron-left"></i>
+                </button>
+                <span id="calendar-month-year" class="calendar-month-year"
+                  >June 2025</span
+                >
+                <button id="next-month-btn" class="calendar-nav-btn">
+                  <i class="fas fa-chevron-right"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="calendar-legend">
+              <div class="legend-item">
+                <span class="legend-color legend-happy"></span>
+                <span class="legend-label">Happy</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-color legend-neutral"></span>
+                <span class="legend-label">Neutral</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-color legend-sad"></span>
+                <span class="legend-label">Sad</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-color legend-angry"></span>
+                <span class="legend-label">Angry</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-color legend-tired"></span>
+                <span class="legend-label">Tired</span>
+              </div>
+            </div>
+
+            <div class="calendar-container">
+              <div class="calendar-weekdays">
+                <div>Sun</div>
+                <div>Mon</div>
+                <div>Tue</div>
+                <div>Wed</div>
+                <div>Thu</div>
+                <div>Fri</div>
+                <div>Sat</div>
+              </div>
+              <div id="calendar-days" class="calendar-days">
+                <!-- Calendar days will be populated here -->
+              </div>
+            </div>
+
+            <div
+              id="calendar-entry-preview"
+              class="calendar-entry-preview hidden"
+            >
+              <div class="preview-date"></div>
+              <div class="preview-mood"></div>
+              <div class="preview-text"></div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <!-- Entry Detail Modal -->
+      <div id="entry-modal" class="modal">
+        <div class="modal-content">
+          <button id="modal-close" class="modal-close">
+            <i class="fas fa-times"></i>
+          </button>
+          <div class="modal-header">
+            <h2 id="modal-date" class="modal-date"></h2>
+            <div class="modal-mood">
+              <span id="modal-mood-emoji" class="modal-mood-emoji"></span>
+              <span id="modal-mood-text" class="modal-mood-text"></span>
+            </div>
+          </div>
+          <p id="modal-entry" class="modal-entry"></p>
+        </div>
+      </div>
+
+      <!-- Toast Notification -->
+      <div id="toast" class="toast hidden">
+        <span id="toast-message">Journal saved successfully!</span>
+        <span id="toast-emoji"></span>
+      </div>
+
+      <!-- Export Journal Preview Modal -->
+      <div id="export-modal" class="modal">
+        <div class="modal-content">
+          <button id="export-modal-close" class="modal-close">
+            <i class="fas fa-times"></i>
+          </button>
+          <div class="export-preview">
+            <h2><i class="fas fa-file-export"></i> Export Your Journal</h2>
+            <p>
+              Download all your journal entries as text files in a single ZIP
+              file.
+            </p>
+
+            <div class="export-options">
+              <label>
+                <input type="checkbox" id="include-mood-checkbox" checked />
+                <span>Include mood in export</span>
+              </label>
+            </div>
+
+            <div class="export-file-list" id="export-file-list">
+              <!-- File list will be populated here -->
+            </div>
+
+            <p>
+              <small
+                >Files will be saved in .txt format with one entry per
+                file.</small
+              >
+            </p>
+
+            <div class="export-actions">
+              <button id="export-cancel-btn" class="export-cancel-btn">
+                Cancel
+              </button>
+              <button id="export-download-btn" class="export-download-btn">
+                <i class="fas fa-download"></i> Download ZIP
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer class="footer">
+        <div class="footer__content">
+          <p>&copy; 2025 Life is Precious - Daily Gratitude Journal</p>
+          <div class="footer__links">
+            <a href="https://github.com" target="_blank" class="footer__link">
+              <i class="fab fa-github"></i>
+            </a>
+            <a href="https://linkedin.com" target="_blank" class="footer__link">
+              <i class="fab fa-linkedin"></i>
+            </a>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
