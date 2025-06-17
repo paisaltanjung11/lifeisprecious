@@ -6,7 +6,7 @@ A beautiful and emotionally-aware daily gratitude journal web application that h
 
 ---
 
-## 🌟 Features
+## Features
 
 - **User-Friendly Interface**: A clean, beautiful UI designed to create a calm, safe space for daily reflection
 - **Mood Tracking**: Track your mood with visual indicators (Happy, Neutral, Sad, Angry, Tired)
@@ -25,7 +25,7 @@ A beautiful and emotionally-aware daily gratitude journal web application that h
 
 ---
 
-## 🖼 Screenshots
+## Screenshots
 
 > Replace each image below with your own screenshots inside the `screenshots/` folder.
 
@@ -39,7 +39,7 @@ A beautiful and emotionally-aware daily gratitude journal web application that h
 
 ---
 
-## 🚀 How to Use
+## How to Use
 
 1. **Enter Your Name**: Start by entering your name on the welcome screen
 2. **Write Your Entry**: Add a short note about your day (max 200 characters)
@@ -53,13 +53,13 @@ A beautiful and emotionally-aware daily gratitude journal web application that h
 
 ---
 
-## 💭 Project Philosophy
+## Project Philosophy
 
 Life is Precious is built on the principle that taking a few moments each day to reflect on what we're grateful for can significantly improve our mental well-being. The application creates a safe, judgment-free space for users to acknowledge their feelings and find moments of gratitude even on difficult days.
 
 ---
 
-## 🔧 Technical Details
+## Technical Details
 
 - Built with vanilla HTML, CSS, and JavaScript
 - Uses browser's localStorage for data persistence
@@ -71,7 +71,7 @@ Life is Precious is built on the principle that taking a few moments each day to
 
 ---
 
-## 🔒 Privacy & Data
+## Privacy & Data
 
 We care deeply about your privacy.
 
@@ -85,13 +85,13 @@ You can optionally export your journals as `.txt` files — this is done **entir
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the **Apache License 2.0**. Please credit the author if you use or modify the project.
 
 ---
 
-## 🧑‍💻 Author
+## Author
 
 Made with care by Paisal Tanjung
 Zero-data by design · 100% local-first experience
