@@ -27,7 +27,7 @@ A beautiful and emotionally-aware daily gratitude journal web application that h
 
 ## Screenshots
 
-> Replace each image below with your own screenshots inside the `screenshots/` folder.
+> The following screenshots show the app in action. (All images are stored in the `screenshots/` folder.)
 
 | Welcome Screen               | Journal Entry                      | History Page                      |
 | ---------------------------- | ---------------------------------- | --------------------------------- |
