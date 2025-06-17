@@ -1,4 +1,4 @@
-# 🔒 Privacy Policy
+# Privacy Policy
 
 **Your privacy matters.**
 
@@ -16,26 +16,34 @@ All of your notes and mood entries are saved locally in your browser using local
 
 If you clear your browser data or uninstall this app, your journal will be permanently erased.
 
-## 📄 Journal Export
+## Journal Export
 
-We provide an optional feature that allows you to export your journal entries as .txt files in a .zip archive.
+We provide a feature that allows you to export your journal entries as text files in a ZIP archive.
 
-This feature is designed to give you full ownership of your data, without compromising your privacy.
+This feature is designed to give you full ownership of your data, without compromising your privacy:
 
-All export files are generated directly in your browser.
+- All export files are generated directly in your browser
+- You can choose to include or exclude mood information in your export
+- Each entry is saved as an individual text file for easy reading
+- All files are packaged in a date-stamped ZIP archive
+- No data is uploaded, sent, or shared during the export process
+- You decide when to export and where to store your backup
 
-No data is uploaded, sent, or shared during the process.
+## Mood Analytics
 
-You decide when to export and where to store your backup.
+The mood analytics feature provides insights about your emotional patterns:
 
-Even in exporting, your data remains entirely yours.
+- All analysis happens locally in your browser
+- Your mood data never leaves your device
+- The insights are generated using only the data you've already saved
+- No external AI or analytics services are used
 
 ## In short:
 
 This app sees nothing. It remembers only what your browser remembers.
 
+You own your data. You control your data. You can export your data anytime.
+
 If you have any questions, feel free to reach out.
 
 _This app complies with zero-data storage principles._
-
-_You are in full control — always._
