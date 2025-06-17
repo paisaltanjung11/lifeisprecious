@@ -27,16 +27,15 @@ A beautiful and emotionally-aware daily gratitude journal web application that h
 
 ## Screenshots
 
-| Screenshot            | Title                        |
-|------------------------|-------------------------------|
-| ![](screenshots/welcome.png)               | Welcome Screen               |
-| ![](screenshots/journal-entry.png)         | Journal Entry                |
-| ![](screenshots/history-page.png)          | History Page                 |
-| ![](screenshots/calendar-view.png)         | Mood Calendar                |
-| ![](screenshots/export.png)                | Export Feature               |
-| ![](screenshots/mood-analytics.png)        | Mood Analytics               |
+> The following screenshots show the app in action. (All images are stored in the screenshots/ folder.)
 
-> 📌 _Screenshots are stored in the `/screenshots/` folder_
+| Welcome Screen               | Journal Entry                      | History Page                      |
+| ---------------------------- | ---------------------------------- | --------------------------------- |
+| ![](screenshots/welcome.png) | ![](screenshots/journal-entry.png) | ![](screenshots/history-page.png) |
+
+| Calendar View                      | Export Feature              | Mood Analytics                      |
+| ---------------------------------- | --------------------------- | ----------------------------------- |
+| ![](screenshots/calendar-view.png) | ![](screenshots/export.png) | ![](screenshots/mood-analytics.png) |
 
 
 ---
