@@ -33,10 +33,9 @@ A beautiful and emotionally-aware daily gratitude journal web application that h
 | ---------------------------- | ---------------------------------- | --------------------------------- |
 | ![](screenshots/welcome.png) | ![](screenshots/journal-entry.png) | ![](screenshots/history-page.png) |
 
-| Calendar View                      | Export Feature              | Mood Analytics                      |
-| ---------------------------------- | --------------------------- | ----------------------------------- |
-| ![](screenshots/calendar-view.png) | ![](screenshots/export.png) | ![](screenshots/mood-analytics.png) |
-
+| Calendar View                      | Export Feature              | Mood Analytics                       |
+| ---------------------------------- | --------------------------- | ------------------------------------ |
+| ![](screenshots/calendar-view.png) | ![](screenshots/export.png) | ![](screenshots/mood-analytics.png)  |
 
 ---
 
@@ -83,6 +82,12 @@ We care deeply about your privacy.
 You can optionally export your journals as `.txt` files — this is done **entirely in your browser**, and nothing is sent anywhere.
 
 > You are in full control — always.
+
+---
+
+## Changelog
+
+For detailed information about updates, new features, and bug fixes, please see [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
