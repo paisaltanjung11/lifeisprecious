@@ -20,3 +20,25 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 - Time-based greetings (morning, afternoon, evening)
 - Confetti animation when logging happy entries
 - Local storage for offline data saving
+
+---
+
+## [2.0.0] - 2025-12-12
+
+### Added
+
+- **Streak Counter**: Shows consecutive journaling days with motivational messages
+- **Mood Tracker**: Displays dominant mood of the month based on entries
+- **Mood Filter**: Filter journal entries by mood (All, Happy, Neutral, Sad, Angry, Tired)
+- **Multi-Language Support**: 4 languages (🇮🇩 Indonesian, 🇬🇧 English, 🇯🇵 Japanese, 🇰🇷 Korean)
+- **Streak Celebration**: Popup with confetti animation every 5-day milestone
+- Language selector with dropdown in header
+- Celebration modal with falling emoji animations
+- Smart tracking to prevent duplicate celebrations
+
+### Fixed
+
+- View/Hide Calendar button text not visible on hover
+- Emoji cut off in mood tracker display
+- Mood tracker showing before any entries exist
+- Export button color inconsistency

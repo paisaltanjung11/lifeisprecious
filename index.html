@@ -25,6 +25,34 @@
           <p class="header__subtitle">Daily Gratitude Journal</p>
         </div>
         <div class="header__actions">
+          <div class="language-selector">
+            <button
+              id="language-btn"
+              class="language-btn"
+              aria-label="Select language"
+            >
+              <i class="fas fa-globe"></i>
+              <span id="current-lang">EN</span>
+            </button>
+            <div id="language-dropdown" class="language-dropdown hidden">
+              <button class="language-option" data-lang="id">
+                <span class="language-flag">🇮🇩</span>
+                <span class="language-name">Indonesia</span>
+              </button>
+              <button class="language-option" data-lang="en">
+                <span class="language-flag">🇬🇧</span>
+                <span class="language-name">English</span>
+              </button>
+              <button class="language-option" data-lang="ja">
+                <span class="language-flag">🇯🇵</span>
+                <span class="language-name">日本語</span>
+              </button>
+              <button class="language-option" data-lang="ko">
+                <span class="language-flag">🇰🇷</span>
+                <span class="language-name">한국어</span>
+              </button>
+            </div>
+          </div>
           <button
             id="theme-toggle"
             class="theme-toggle"
@@ -33,7 +61,8 @@
             <i class="fas fa-sun"></i>
           </button>
           <button id="logout-btn" class="logout-btn hidden">
-            <i class="fas fa-sign-out-alt"></i> Logout
+            <i class="fas fa-sign-out-alt"></i>
+            <span id="logout-text">Logout</span>
           </button>
         </div>
       </header>
@@ -172,8 +201,18 @@
               </div>
             </div>
 
+            <!-- Streak Counter -->
+            <div id="streak-counter" class="streak-counter hidden">
+              <div class="streak-counter__icon">🔥</div>
+              <div class="streak-counter__content">
+                <div class="streak-counter__number">0</div>
+                <div class="streak-counter__label">Day Streak</div>
+              </div>
+              <div class="streak-counter__message">Keep it up!</div>
+            </div>
+
             <!-- Dominant Mood Tracker -->
-            <div id="mood-tracker" class="mood-tracker">
+            <div id="mood-tracker" class="mood-tracker hidden">
               <div class="mood-tracker__title">
                 <i class="fas fa-brain"></i> Your Dominant Mood
               </div>
@@ -183,20 +222,36 @@
                   >You've felt mostly <strong>Neutral</strong> this month.</span
                 >
               </div>
-              <div class="mood-tracker__insight hidden">
-                <span class="mood-tracker__insight-emoji">😊</span>
-                <span>Happiest Day: <strong>June 4</strong></span>
-              </div>
-              <div class="mood-tracker__insight hidden">
-                <span class="mood-tracker__insight-emoji">😔</span>
-                <span
-                  >You've been <strong>Sad</strong> for 3 days in a row. Want to
-                  talk?</span
-                >
-              </div>
               <button class="mood-tracker__stats-btn">
                 See Full Mood Stats <i class="fas fa-arrow-right"></i>
               </button>
+            </div>
+
+            <!-- Mood Filter -->
+            <div id="mood-filter" class="mood-filter hidden">
+              <div class="mood-filter__label">
+                <i class="fas fa-filter"></i> Filter by Mood:
+              </div>
+              <div class="mood-filter__buttons">
+                <button class="mood-filter-btn active" data-filter="all">
+                  All
+                </button>
+                <button class="mood-filter-btn" data-filter="happy">
+                  😊 Happy
+                </button>
+                <button class="mood-filter-btn" data-filter="neutral">
+                  😐 Neutral
+                </button>
+                <button class="mood-filter-btn" data-filter="sad">
+                  😔 Sad
+                </button>
+                <button class="mood-filter-btn" data-filter="angry">
+                  😠 Angry
+                </button>
+                <button class="mood-filter-btn" data-filter="tired">
+                  😴 Tired
+                </button>
+              </div>
             </div>
 
             <div id="history-list" class="history__list">
@@ -297,6 +352,27 @@
         <span id="toast-emoji"></span>
       </div>
 
+      <!-- Streak Celebration Modal -->
+      <div id="celebration-modal" class="celebration-modal">
+        <div class="celebration-content">
+          <button id="celebration-close" class="celebration-close">
+            <i class="fas fa-times"></i>
+          </button>
+          <div class="celebration-icon">🎉</div>
+          <h2 id="celebration-title" class="celebration-title">
+            Congratulations!
+          </h2>
+          <p id="celebration-message" class="celebration-message">
+            You've reached a <strong id="celebration-streak">5</strong> day
+            streak!
+          </p>
+          <div class="celebration-emoji-display">🔥</div>
+          <button id="celebration-continue" class="celebration-continue-btn">
+            Continue
+          </button>
+        </div>
+      </div>
+
       <!-- Export Journal Preview Modal -->
       <div id="export-modal" class="modal">
         <div class="modal-content">
@@ -363,6 +439,7 @@
       </footer>
     </div>
 
+    <script src="locales.js"></script>
     <script src="script.js"></script>
   </body>
 </html>

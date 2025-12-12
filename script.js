@@ -47,6 +47,17 @@ const exportFileList = document.getElementById("export-file-list");
 const includeMoodCheckbox = document.getElementById("include-mood-checkbox");
 const exportCancelBtn = document.getElementById("export-cancel-btn");
 const exportDownloadBtn = document.getElementById("export-download-btn");
+const streakCounter = document.getElementById("streak-counter");
+const moodFilter = document.getElementById("mood-filter");
+const moodFilterButtons = document.querySelectorAll(".mood-filter-btn");
+const languageBtn = document.getElementById("language-btn");
+const languageDropdown = document.getElementById("language-dropdown");
+const languageOptions = document.querySelectorAll(".language-option");
+const currentLangSpan = document.getElementById("current-lang");
+const celebrationModal = document.getElementById("celebration-modal");
+const celebrationClose = document.getElementById("celebration-close");
+const celebrationContinue = document.getElementById("celebration-continue");
+const celebrationStreak = document.getElementById("celebration-streak");
 
 // Application State
 let currentUser = null;
@@ -55,11 +66,142 @@ let journalEntries = [];
 let darkMode = false;
 let calendarCurrentMonth = new Date().getMonth();
 let calendarCurrentYear = new Date().getFullYear();
+let currentMoodFilter = "all"; // For mood filtering
+
+/**
+ * Update all UI text based on current language
+ */
+function updateUILanguage() {
+  // Header
+  document.querySelector(".header__title").textContent = __("appTitle");
+  document.querySelector(".header__subtitle").textContent = __("appSubtitle");
+  document.getElementById("logout-text").textContent = __("logout");
+
+  // Auth Section
+  document.querySelector(".auth__title").textContent = __("authWelcome");
+  document.querySelector(".auth__instruction").textContent =
+    __("authInstruction");
+  document.getElementById("username-input").placeholder = __("authPlaceholder");
+  document.getElementById("login-btn").textContent = __("authButton");
+  document.querySelector(".auth__extra-text").textContent = __("authExtraText");
+
+  // Tab Navigation
+  document.getElementById("journal-tab").textContent = __("tabJournal");
+  document.getElementById("history-tab").textContent = __("tabHistory");
+
+  // Journal Section
+  document.querySelector(".form-label").textContent = __("journalLabel");
+  document.getElementById("journal-entry").placeholder =
+    __("journalPlaceholder");
+  document.querySelectorAll(".form-label")[1].textContent =
+    __("journalMoodLabel");
+  document.getElementById("save-entry-btn").textContent =
+    __("journalSaveButton");
+
+  // Mood Labels
+  const moodLabels = document.querySelectorAll(".mood-label");
+  moodLabels[0].textContent = __("moodHappy");
+  moodLabels[1].textContent = __("moodNeutral");
+  moodLabels[2].textContent = __("moodSad");
+  moodLabels[3].textContent = __("moodAngry");
+  moodLabels[4].textContent = __("moodTired");
+
+  // Info Card
+  document.querySelector(".info-card__content h3").textContent =
+    __("infoTitle");
+  document.querySelector(".info-card__content p").textContent = __("infoText");
+
+  // History Section
+  document.querySelector(".history__title").textContent = __("historyTitle");
+  document.getElementById("no-entries-message").textContent =
+    __("historyEmpty");
+  document.querySelector(".export-journal-btn").innerHTML = `
+    <i class="fas fa-file-export"></i> ${__("historyExportButton")}
+  `;
+
+  // Mood Tracker
+  document.querySelector(".mood-tracker__title").innerHTML = `
+    <i class="fas fa-brain"></i> ${__("moodTrackerTitle")}
+  `;
+  document.querySelector(".mood-tracker__stats-btn").innerHTML = `
+    ${__("moodTrackerButton")} <i class="fas fa-arrow-right"></i>
+  `;
+
+  // Mood Filter
+  document.querySelector(".mood-filter__label").innerHTML = `
+    <i class="fas fa-filter"></i> ${__("filterLabel")}
+  `;
+  const filterButtons = document.querySelectorAll(".mood-filter-btn");
+  filterButtons[0].textContent = __("filterAll");
+  filterButtons[1].innerHTML = `😊 ${__("moodHappy")}`;
+  filterButtons[2].innerHTML = `😐 ${__("moodNeutral")}`;
+  filterButtons[3].innerHTML = `😔 ${__("moodSad")}`;
+  filterButtons[4].innerHTML = `😠 ${__("moodAngry")}`;
+  filterButtons[5].innerHTML = `😴 ${__("moodTired")}`;
+
+  // Calendar
+  document.querySelector(".calendar-card__title").textContent =
+    __("calendarTitle");
+
+  // Calendar Legend
+  const legendLabels = document.querySelectorAll(".legend-label");
+  legendLabels[0].textContent = __("moodHappy");
+  legendLabels[1].textContent = __("moodNeutral");
+  legendLabels[2].textContent = __("moodSad");
+  legendLabels[3].textContent = __("moodAngry");
+  legendLabels[4].textContent = __("moodTired");
+
+  // Celebration Modal
+  document.getElementById("celebration-continue").textContent = __(
+    "celebrationContinue"
+  );
+
+  // Export Modal
+  document.querySelector(".export-preview h2").innerHTML = `
+    <i class="fas fa-file-export"></i> ${__("exportTitle")}
+  `;
+  document.querySelector(".export-preview > p").textContent =
+    __("exportDescription");
+  document.querySelector(".export-options label span").textContent =
+    __("exportIncludeMood");
+  document.querySelector(".export-preview small").textContent =
+    __("exportFileNote");
+  document.getElementById("export-cancel-btn").textContent = __("exportCancel");
+  document.querySelector(".export-download-btn").innerHTML = `
+    <i class="fas fa-download"></i> ${__("exportDownload")}
+  `;
+
+  // Footer
+  document.querySelector(".footer__content p").textContent =
+    __("footerCopyright");
+
+  // Update current date with new language
+  updateCurrentDate();
+
+  // Re-render history if there are entries
+  if (journalEntries.length > 0) {
+    renderJournalHistory();
+  }
+
+  // Update greeting if user is logged in
+  if (currentUser) {
+    const greeting = getTimeBasedGreeting();
+    // Greeting is already updated via getTimeBasedGreeting()
+  }
+
+  // Update calendar if visible
+  if (!moodCalendarCard.classList.contains("hidden")) {
+    renderCalendar(calendarCurrentMonth, calendarCurrentYear);
+  }
+}
 
 /**
  * Initialize the application
  */
 function init() {
+  // Initialize language first
+  initLanguage();
+
   // Check if dark mode was previously enabled
   checkDarkModePreference();
 
@@ -78,11 +220,20 @@ function init() {
   // Check if already journaled today
   checkForTodayEntry();
 
+  // Update UI language
+  updateUILanguage();
+
+  // Update language button display
+  updateLanguageButton();
+
   // Set focus on username input for better UX
   usernameInput.focus();
 
   // Restore the last active tab from localStorage
   restoreLastActiveTab();
+
+  // Check for streak milestone celebration
+  checkStreakMilestone();
 }
 
 /**
@@ -137,39 +288,68 @@ function checkUserLogin() {
 }
 
 /**
+ * Update language button display
+ */
+function updateLanguageButton() {
+  const langCodes = {
+    id: "ID",
+    en: "EN",
+    ja: "JP",
+    ko: "KR",
+  };
+  currentLangSpan.textContent = langCodes[getCurrentLanguage()] || "EN";
+}
+
+/**
+ * Toggle language dropdown
+ */
+function toggleLanguageDropdown() {
+  languageDropdown.classList.toggle("hidden");
+}
+
+/**
+ * Close language dropdown
+ */
+function closeLanguageDropdown() {
+  languageDropdown.classList.add("hidden");
+}
+
+/**
+ * Switch language
+ */
+function switchLanguage(lang) {
+  if (setLanguage(lang)) {
+    updateUILanguage();
+    updateLanguageButton();
+    closeLanguageDropdown();
+    showToast(
+      `Language changed successfully! / Bahasa berhasil diubah! / 言語が変更されました！ / 언어가 변경되었습니다!`,
+      "🌍"
+    );
+  }
+}
+
+/**
  * Get greeting based on time of day
  */
 function getTimeBasedGreeting() {
   const hour = new Date().getHours();
 
   if (hour < 12) {
-    return "Good morning";
+    return __("toastGreetingMorning");
   } else if (hour < 18) {
-    return "Good afternoon";
+    return __("toastGreetingAfternoon");
   } else {
-    return "Good evening";
+    return __("toastGreetingEvening");
   }
 }
 
 /**
- * Format the current date in English format
+ * Format the current date with localization
  */
 function updateCurrentDate() {
-  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  const months = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ];
+  const days = __("calendarWeekdays");
+  const months = __("calendarMonthsShort");
 
   const now = new Date();
   const day = days[now.getDay()];
@@ -274,6 +454,58 @@ function setupEventListeners() {
 
   // Update export file list when checkbox changes
   includeMoodCheckbox.addEventListener("change", updateExportPreview);
+
+  // Mood filter buttons
+  moodFilterButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      // Remove active class from all buttons
+      moodFilterButtons.forEach((btn) => btn.classList.remove("active"));
+
+      // Add active class to clicked button
+      button.classList.add("active");
+
+      // Set current filter
+      currentMoodFilter = button.dataset.filter;
+
+      // Re-render history with filter
+      renderJournalHistory();
+    });
+  });
+
+  // Language selector
+  languageBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    toggleLanguageDropdown();
+  });
+
+  // Language options
+  languageOptions.forEach((option) => {
+    option.addEventListener("click", () => {
+      const lang = option.dataset.lang;
+      switchLanguage(lang);
+    });
+  });
+
+  // Close language dropdown when clicking outside
+  document.addEventListener("click", (e) => {
+    if (
+      !languageBtn.contains(e.target) &&
+      !languageDropdown.contains(e.target)
+    ) {
+      closeLanguageDropdown();
+    }
+  });
+
+  // Celebration modal
+  celebrationClose.addEventListener("click", closeCelebrationModal);
+  celebrationContinue.addEventListener("click", closeCelebrationModal);
+
+  // Close celebration modal when clicking outside
+  celebrationModal.addEventListener("click", (e) => {
+    if (e.target === celebrationModal) {
+      closeCelebrationModal();
+    }
+  });
 }
 
 /**
@@ -283,7 +515,7 @@ function handleLogin() {
   const username = usernameInput.value.trim();
 
   if (username.length < 3) {
-    showToast("Username must be at least 3 characters!", "⚠️");
+    showToast(__("toastUsernameTooShort"), "⚠️");
     usernameInput.focus();
     return;
   }
@@ -330,7 +562,7 @@ function handleLogout() {
     "theme--tired"
   );
 
-  showToast("You have been logged out successfully!", "👋");
+  showToast(__("toastLoggedOut"), "👋");
 
   // Focus on username input for better UX
   setTimeout(() => {
@@ -356,7 +588,7 @@ function loginUser(username) {
   logoutBtn.classList.remove("hidden");
 
   // Welcome toast with time-based greeting
-  showToast(`${greeting}, ${username}! Ready to reflect on your day?`, "✨");
+  showToast(`${greeting}, ${username}! ${__("toastWelcome")}`, "✨");
 
   // Focus on journal entry for better UX
   setTimeout(() => {
@@ -453,16 +685,15 @@ function setMoodTheme(mood) {
  * Show motivation message based on selected mood
  */
 function showMotivation(mood) {
-  const motivationMessages = {
-    happy: "✨ Great! Keep up the positive energy today!",
-    neutral: "🌊 It's okay to feel neutral, each day has its own story.",
-    sad: "🌈 Bad days will pass. Stay strong! You are not alone.",
-    angry:
-      "💧 Take a moment to calm your mind. Everything will feel easier afterward.",
-    tired: "🌙 Remember to rest. Taking care of your health is important.",
+  const motivationKeys = {
+    happy: "motivationHappy",
+    neutral: "motivationNeutral",
+    sad: "motivationSad",
+    angry: "motivationAngry",
+    tired: "motivationTired",
   };
 
-  motivationText.textContent = motivationMessages[mood];
+  motivationText.textContent = __(motivationKeys[mood]);
   motivationBox.classList.remove("hidden");
 
   // Animate the motivation box
@@ -495,10 +726,7 @@ function checkForTodayEntry() {
       }
     });
 
-    showToast(
-      "You've already journaled today. You can edit your entry if you wish.",
-      "📝"
-    );
+    showToast(__("toastAlreadyJournaled"), "📝");
   }
 }
 
@@ -527,13 +755,13 @@ function saveJournalEntry() {
 
   // Validate input
   if (!entryText) {
-    showToast("Please write your journal entry first.", "⚠️");
+    showToast(__("toastEntryEmpty"), "⚠️");
     journalEntry.focus();
     return;
   }
 
   if (!selectedMood) {
-    showToast("Please select your mood for today.", "⚠️");
+    showToast(__("toastMoodEmpty"), "⚠️");
     return;
   }
 
@@ -581,14 +809,14 @@ function saveJournalEntry() {
   // Show success toast with confetti for happy mood
   if (selectedMood === "happy") {
     const message = isNewEntry
-      ? "Journal saved successfully! See you tomorrow 😊"
-      : "Journal updated successfully!";
+      ? __("toastEntrySaved")
+      : __("toastEntryUpdated");
     showToast(message, "🎉");
     createConfetti();
   } else {
     const message = isNewEntry
-      ? "Journal saved successfully!"
-      : "Journal updated successfully!";
+      ? __("toastEntrySaved")
+      : __("toastEntryUpdated");
     showToast(message, getMoodEmoji(selectedMood));
   }
 
@@ -641,6 +869,123 @@ function createConfetti() {
 }
 
 /**
+ * Create celebration confetti effect (more intense)
+ */
+function createCelebrationConfetti() {
+  const confettiEmojis = [
+    "🎉",
+    "🎊",
+    "🎈",
+    "🎁",
+    "⭐",
+    "🌟",
+    "💫",
+    "✨",
+    "🔥",
+    "🏆",
+    "👏",
+    "🙌",
+  ];
+  const container = document.createElement("div");
+  container.className = "celebration-confetti-container";
+  document.body.appendChild(container);
+
+  // Create 60 confetti emojis for more dramatic effect
+  for (let i = 0; i < 60; i++) {
+    const confetti = document.createElement("div");
+    confetti.className = "celebration-confetti";
+    confetti.textContent =
+      confettiEmojis[Math.floor(Math.random() * confettiEmojis.length)];
+    confetti.style.left = Math.random() * 100 + "vw";
+    confetti.style.animationDuration = Math.random() * 4 + 3 + "s";
+    confetti.style.animationDelay = Math.random() * 2 + "s";
+    container.appendChild(confetti);
+  }
+
+  // Remove confetti container after animation
+  setTimeout(() => {
+    if (document.body.contains(container)) {
+      document.body.removeChild(container);
+    }
+  }, 10000);
+}
+
+/**
+ * Show celebration modal for streak milestone
+ */
+function showCelebrationModal(streak) {
+  // Update celebration content
+  celebrationStreak.textContent = streak;
+
+  // Get celebration message based on language
+  const messages = {
+    id: `Kamu telah mencapai <strong>${streak}</strong> hari beruntun!`,
+    en: `You've reached a <strong>${streak}</strong> day streak!`,
+    ja: `<strong>${streak}</strong>日連続を達成しました！`,
+    ko: `<strong>${streak}</strong>일 연속을 달성했습니다!`,
+  };
+
+  const titles = {
+    id: "Selamat!",
+    en: "Congratulations!",
+    ja: "おめでとうございます！",
+    ko: "축하합니다!",
+  };
+
+  const currentLang = getCurrentLanguage();
+  document.getElementById("celebration-title").textContent =
+    titles[currentLang] || titles.en;
+  document.getElementById("celebration-message").innerHTML =
+    messages[currentLang] || messages.en;
+
+  // Show modal
+  celebrationModal.classList.add("visible");
+  document.body.style.overflow = "hidden";
+
+  // Create celebration confetti
+  createCelebrationConfetti();
+}
+
+/**
+ * Close celebration modal
+ */
+function closeCelebrationModal() {
+  celebrationModal.classList.remove("visible");
+  document.body.style.overflow = "";
+}
+
+/**
+ * Check if streak milestone should be celebrated
+ */
+function checkStreakMilestone() {
+  if (!currentUser || journalEntries.length === 0) return;
+
+  const currentStreak = calculateStreak();
+
+  // Check if streak is a multiple of 5 and greater than 0
+  if (currentStreak > 0 && currentStreak % 5 === 0) {
+    // Check if we've already shown celebration for this streak
+    const lastCelebratedStreak = parseInt(
+      localStorage.getItem(`${currentUser}_lastCelebratedStreak`) || "0"
+    );
+
+    // Only show if we haven't celebrated this streak yet
+    if (currentStreak > lastCelebratedStreak) {
+      // Save that we've celebrated this streak
+      localStorage.setItem(
+        `${currentUser}_lastCelebratedStreak`,
+        currentStreak.toString()
+      );
+
+      // Show celebration after a short delay
+      setTimeout(() => {
+        showCelebrationModal(currentStreak);
+      }, 1000);
+    }
+  }
+}
+
+/**
  * Show toast notification
  */
 function showToast(message, emoji) {
@@ -686,6 +1031,49 @@ function saveEntriesToLocalStorage() {
 }
 
 /**
+ * Update streak counter display
+ */
+function updateStreakCounter() {
+  if (!streakCounter) return;
+
+  const streak = calculateStreak();
+
+  if (streak === 0 && journalEntries.length === 0) {
+    streakCounter.classList.add("hidden");
+    return;
+  }
+
+  streakCounter.classList.remove("hidden");
+
+  const streakNumber = streakCounter.querySelector(".streak-counter__number");
+  const streakLabel = streakCounter.querySelector(".streak-counter__label");
+  const streakMessage = streakCounter.querySelector(".streak-counter__message");
+
+  if (streakNumber) {
+    streakNumber.textContent = streak;
+  }
+
+  if (streakLabel) {
+    streakLabel.textContent =
+      streak === 1 ? __("streakDayLabel") : __("streakDaysLabel");
+  }
+
+  if (streakMessage) {
+    if (streak === 0) {
+      streakMessage.textContent = __("streakMessageStart");
+    } else if (streak === 1) {
+      streakMessage.textContent = __("streakMessage1");
+    } else if (streak < 7) {
+      streakMessage.textContent = __("streakMessageWeek");
+    } else if (streak < 30) {
+      streakMessage.textContent = __("streakMessageMonth");
+    } else {
+      streakMessage.textContent = __("streakMessageLegend");
+    }
+  }
+}
+
+/**
  * Render journal history in the history section
  */
 function renderJournalHistory() {
@@ -697,16 +1085,27 @@ function renderJournalHistory() {
   // Check if there are no entries
   if (journalEntries.length === 0) {
     noEntriesMessage.classList.remove("hidden");
+    streakCounter.classList.add("hidden");
+    moodFilter.classList.add("hidden");
     return;
   }
 
   // Hide "no entries" message
   noEntriesMessage.classList.add("hidden");
 
+  // Show mood filter
+  moodFilter.classList.remove("hidden");
+
   // Sort entries by date (newest first)
   const sortedEntries = [...journalEntries].sort(
     (a, b) => b.timestamp - a.timestamp
   );
+
+  // Filter entries based on selected mood
+  const filteredEntries =
+    currentMoodFilter === "all"
+      ? sortedEntries
+      : sortedEntries.filter((entry) => entry.mood === currentMoodFilter);
 
   // Apply theme from the latest entry
   if (sortedEntries.length > 0) {
@@ -714,24 +1113,33 @@ function renderJournalHistory() {
     setMoodTheme(latestEntry.mood);
   }
 
-  // Create HTML elements for each journal entry
-  sortedEntries.forEach((entry) => {
-    const entryElement = document.createElement("div");
-    entryElement.classList.add("history-item", `history-item--${entry.mood}`);
+  // Show message if no entries match filter
+  if (filteredEntries.length === 0) {
+    const noFilterMessage = document.createElement("p");
+    noFilterMessage.className = "history__empty";
+    noFilterMessage.textContent = `${__("filterNoEntries")} ${getMoodName(
+      currentMoodFilter
+    )} ${__("filterTryDifferent")}`;
+    historyList.appendChild(noFilterMessage);
+  } else {
+    // Create HTML elements for each journal entry
+    filteredEntries.forEach((entry) => {
+      const entryElement = document.createElement("div");
+      entryElement.classList.add("history-item", `history-item--${entry.mood}`);
 
-    // Format date
-    const entryDate = new Date(entry.date);
-    const formattedDate = formatDateForHistory(entryDate);
+      // Format date
+      const entryDate = new Date(entry.date);
+      const formattedDate = formatDateForHistory(entryDate);
 
-    // Get mood emoji and name
-    const moodEmoji = getMoodEmoji(entry.mood);
-    const moodName = getMoodName(entry.mood);
+      // Get mood emoji and name
+      const moodEmoji = getMoodEmoji(entry.mood);
+      const moodName = getMoodName(entry.mood);
 
-    // Add click event to show entry detail modal
-    entryElement.addEventListener("click", () => showEntryDetail(entry));
+      // Add click event to show entry detail modal
+      entryElement.addEventListener("click", () => showEntryDetail(entry));
 
-    // Create the entry content
-    entryElement.innerHTML = `
+      // Create the entry content
+      entryElement.innerHTML = `
             <div class="history-header">
                 <div class="history-date">${formattedDate}</div>
                 <div class="history-mood-container">
@@ -742,22 +1150,92 @@ function renderJournalHistory() {
             <div class="history-entry">${entry.text}</div>
         `;
 
-    historyList.appendChild(entryElement);
-  });
+      historyList.appendChild(entryElement);
+    });
+  }
 
   // Update Mood Tracker Stats
   updateMoodTrackerStats();
+
+  // Update Streak Counter
+  updateStreakCounter();
+}
+
+/**
+ * Calculate current streak of consecutive journaling days
+ */
+function calculateStreak() {
+  if (journalEntries.length === 0) return 0;
+
+  // Sort entries by date (newest first)
+  const sortedEntries = [...journalEntries].sort(
+    (a, b) => b.timestamp - a.timestamp
+  );
+
+  // Get unique dates (in case there are multiple entries per day)
+  const uniqueDates = [];
+  const seenDates = new Set();
+
+  sortedEntries.forEach((entry) => {
+    const dateString = getDateString(new Date(entry.date));
+    if (!seenDates.has(dateString)) {
+      seenDates.add(dateString);
+      uniqueDates.push(new Date(entry.date));
+    }
+  });
+
+  // Check if user journaled today or yesterday
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  const latestEntry = uniqueDates[0];
+  latestEntry.setHours(0, 0, 0, 0);
+
+  // If latest entry is not today or yesterday, streak is broken
+  if (
+    latestEntry.getTime() !== today.getTime() &&
+    latestEntry.getTime() !== yesterday.getTime()
+  ) {
+    return 0;
+  }
+
+  // Count consecutive days
+  let streak = 1;
+  let currentDate = new Date(latestEntry);
+
+  for (let i = 1; i < uniqueDates.length; i++) {
+    const prevDate = new Date(uniqueDates[i]);
+    prevDate.setHours(0, 0, 0, 0);
+
+    const expectedDate = new Date(currentDate);
+    expectedDate.setDate(expectedDate.getDate() - 1);
+
+    if (prevDate.getTime() === expectedDate.getTime()) {
+      streak++;
+      currentDate = prevDate;
+    } else {
+      break;
+    }
+  }
+
+  return streak;
 }
 
 /**
  * Update the mood tracker statistics
  */
 function updateMoodTrackerStats() {
-  // If there are no entries, don't update the tracker
-  if (journalEntries.length === 0) return;
-
   const moodTracker = document.getElementById("mood-tracker");
   if (!moodTracker) return;
+
+  // If there are no entries at all, hide the tracker
+  if (journalEntries.length === 0) {
+    moodTracker.classList.add("hidden");
+    return;
+  }
 
   // Get current month entries
   const currentDate = new Date();
@@ -776,9 +1254,10 @@ function updateMoodTrackerStats() {
   if (currentMonthEntries.length === 0) {
     moodTracker.classList.add("hidden");
     return;
-  } else {
-    moodTracker.classList.remove("hidden");
   }
+
+  // Show the tracker since we have entries this month
+  moodTracker.classList.remove("hidden");
 
   // Count frequency of each mood
   const moodCounts = {};
@@ -787,7 +1266,7 @@ function updateMoodTrackerStats() {
   });
 
   // Find dominant mood (most frequent)
-  let dominantMood = "neutral";
+  let dominantMood = null;
   let maxCount = 0;
 
   for (const mood in moodCounts) {
@@ -797,58 +1276,32 @@ function updateMoodTrackerStats() {
     }
   }
 
-  // Check for streak of sad days
-  const sortedEntries = [...journalEntries].sort(
-    (a, b) => b.timestamp - a.timestamp
-  );
-  let sadStreak = 0;
+  // Update the UI - only show dominant mood
+  const trackerInsight = moodTracker.querySelector(".mood-tracker__insight");
 
-  for (const entry of sortedEntries) {
-    if (entry.mood === "sad") {
-      sadStreak++;
-    } else {
-      break;
-    }
-  }
+  // Update dominant mood (only show if we have a dominant mood)
+  if (trackerInsight && dominantMood) {
+    const dominantMoodEmoji = getMoodEmoji(dominantMood);
+    const dominantMoodName = getMoodName(dominantMood);
 
-  // Update the UI
-  const dominantMoodEmoji = getMoodEmoji(dominantMood);
-  const dominantMoodName = getMoodName(dominantMood);
-
-  const trackerInsights = moodTracker.querySelectorAll(
-    ".mood-tracker__insight"
-  );
-
-  // Update dominant mood
-  if (trackerInsights[0]) {
-    trackerInsights[0].innerHTML = `
+    trackerInsight.innerHTML = `
       <span class="mood-tracker__insight-emoji">${dominantMoodEmoji}</span>
-      <span>You've felt mostly <strong>${dominantMoodName}</strong> this month.</span>
+      <span>${__("moodTrackerText")} <strong>${dominantMoodName}</strong> ${__(
+      "moodTrackerMonth"
+    )}</span>
     `;
+    trackerInsight.classList.remove("hidden");
   }
 
-  // Hide happiest day section for now
-  if (trackerInsights[1]) {
-    trackerInsights[1].classList.add("hidden");
-  }
-
-  // Update sad streak - only show if there are 3+ sad days in a row
-  if (trackerInsights[2]) {
-    if (sadStreak >= 3) {
-      trackerInsights[2].innerHTML = `
-        <span class="mood-tracker__insight-emoji">😔</span>
-        <span>You've been <strong>Sad</strong> for ${sadStreak} days in a row. Want to talk?</span>
-      `;
-      trackerInsights[2].classList.remove("hidden");
-    } else {
-      trackerInsights[2].classList.add("hidden");
-    }
-  }
-
-  // Set up click handler for stats button
+  // Set up click handler for stats button (remove old listeners first)
   const statsButton = moodTracker.querySelector(".mood-tracker__stats-btn");
   if (statsButton) {
-    statsButton.addEventListener("click", () => {
+    // Clone the button to remove all event listeners
+    const newStatsButton = statsButton.cloneNode(true);
+    statsButton.parentNode.replaceChild(newStatsButton, statsButton);
+
+    // Add the click handler
+    newStatsButton.addEventListener("click", () => {
       toggleCalendarView();
     });
   }
@@ -903,8 +1356,9 @@ function closeEntryModal() {
 function toggleCalendarView() {
   if (moodCalendarCard.classList.contains("hidden")) {
     moodCalendarCard.classList.remove("hidden");
-    viewCalendarBtn.innerHTML =
-      '<i class="fas fa-calendar-alt"></i> Hide Mood Calendar';
+    viewCalendarBtn.innerHTML = `<i class="fas fa-calendar-alt"></i> ${__(
+      "historyHideCalendar"
+    )}`;
 
     // Initialize calendar with current month
     calendarCurrentMonth = new Date().getMonth();
@@ -912,8 +1366,9 @@ function toggleCalendarView() {
     renderCalendar(calendarCurrentMonth, calendarCurrentYear);
   } else {
     moodCalendarCard.classList.add("hidden");
-    viewCalendarBtn.innerHTML =
-      '<i class="fas fa-calendar-alt"></i> View Mood Calendar';
+    viewCalendarBtn.innerHTML = `<i class="fas fa-calendar-alt"></i> ${__(
+      "historyViewCalendar"
+    )}`;
 
     // Hide entry preview
     calendarEntryPreview.classList.add("hidden");
@@ -952,20 +1407,7 @@ function goToNextMonth() {
  * Render calendar for a given month and year
  */
 function renderCalendar(month, year) {
-  const months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
+  const months = __("calendarMonths");
 
   // Update month and year display
   calendarMonthYear.textContent = `${months[month]} ${year}`;
@@ -1130,21 +1572,8 @@ function getMoodName(mood) {
  * Format date for history display
  */
 function formatDateForHistory(date) {
-  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  const months = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ];
+  const days = __("calendarWeekdays");
+  const months = __("calendarMonthsShort");
 
   const day = days[date.getDay()];
   const dateNum = date.getDate();
@@ -1203,7 +1632,7 @@ function closeExportModal() {
 function openExportModal() {
   // If there are no entries, show toast and return
   if (journalEntries.length === 0) {
-    showToast("You don't have any journal entries to export yet.", "📝");
+    showToast(__("toastNoEntriesToExport"), "📝");
     return;
   }
 
@@ -1330,11 +1759,11 @@ function downloadJournalZip() {
       closeExportModal();
 
       // Show success toast
-      showToast("Journal exported successfully! 🎉", "📦");
+      showToast(__("toastExportSuccess"), "📦");
     });
   } catch (error) {
     console.error("Error creating ZIP file:", error);
-    showToast("There was an error exporting your journal.", "⚠️");
+    showToast(__("toastExportError"), "⚠️");
   }
 }
 
